@@ -1,0 +1,50 @@
+_schema-version: "3.2"
+ID: FioriTest2
+version: 0.0.1
+modules:
+- name: fioritest2-approuter
+  type: approuter.nodejs
+  path: fioritest2-approuter
+  requires:
+  - name: FioriTest2_html_repo_runtime
+  parameters:
+    disk-quota: 256M
+    memory: 256M
+- name: FioriTest2_ui_deployer
+  type: com.sap.application.content
+  path: .
+  requires:
+  - name: FioriTest2_html_repo_host
+    parameters:
+      content-target: true
+  build-parameters:
+    build-result: resources
+    requires:
+    - artifacts:
+      - fioritest2-content.zip
+      name: fioritest2
+      target-path: resources/
+- name: fioritest2
+  type: html5
+  path: fioritest2
+  build-parameters:
+    builder: custom
+    commands:
+    - npm run build
+    supported-platforms: []
+resources:
+- name: FioriTest2_html_repo_runtime
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-plan: app-runtime
+- name: FioriTest2_html_repo_host
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-plan: app-host
+build-parameters:
+  before-all:
+  - builder: custom
+    commands:
+    - npm install
